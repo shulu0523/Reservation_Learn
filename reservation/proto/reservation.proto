@@ -1,0 +1,155 @@
+syntax = "proto3";
+
+package reservation;
+\import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+// 预订状态
+enum ReservationStatus {
+  STATUS_UNSPECIFIED = 0;
+  STATUS_PENDING = 1;
+  STATUS_CONFIRMED = 2;
+  STATUS_CANCELLED = 3;
+  STATUS_COMPLETED = 4;
+}
+
+// 预订更新类型
+enum ReservationUpdateType {
+  UPDATE_TYPE_UNSPECIFIED = 0;
+  UPDATE_TYPE_CREATED = 1;
+  UPDATE_TYPE_CONFIRMED = 2;
+  UPDATE_TYPE_CANCELLED = 3;
+  UPDATE_TYPE_MODIFIED = 4;
+}
+
+// 预订请求
+message ReserveRequest {
+  string resource_id = 1;
+  google.protobuf.Timestamp start_time = 2;
+  google.protobuf.Timestamp end_time = 3;
+  string user_id = 4;
+  map<string, string> metadata = 5;
+}
+
+// 预订响应
+message ReserveResponse {
+  string reservation_id = 1;
+  ReservationStatus status = 2;
+  string message = 3;
+}
+
+// 确认预订请求
+message ConfirmRequest {
+  string reservation_id = 1;
+}
+
+// 确认预订响应
+message ConfirmResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// 取消预订请求
+message CancelRequest {
+  string reservation_id = 1;
+  string reason = 2;
+}
+
+// 取消预订响应
+message CancelResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// 获取预订请求
+message GetRequest {
+  string reservation_id = 1;
+}
+
+// 预订信息
+message Reservation {
+  string id = 1;
+  string resource_id = 2;
+  google.protobuf.Timestamp start_time = 3;
+  google.protobuf.Timestamp end_time = 4;
+  string user_id = 5;
+  ReservationStatus status = 6;
+  map<string, string> metadata = 7;
+  google.protobuf.Timestamp created_at = 8;
+  google.protobuf.Timestamp updated_at = 9;
+}
+
+// 获取预订响应
+message GetResponse {
+  Reservation reservation = 1;
+}
+
+// 更新预订请求
+message UpdateRequest {
+  string reservation_id = 1;
+  google.protobuf.Timestamp start_time = 2;
+  google.protobuf.Timestamp end_time = 3;
+  map<string, string> metadata = 4;
+}
+
+// 更新预订响应
+message UpdateResponse {
+  bool success = 1;
+  string message = 2;
+  Reservation reservation = 3;
+}
+
+// 查询预订请求
+message QueryRequest {
+  string resource_id = 1;
+  string user_id = 2;
+  ReservationStatus status = 3;
+  google.protobuf.Timestamp start_time = 4;
+  google.protobuf.Timestamp end_time = 5;
+  int32 page_size = 6;
+  string page_token = 7;
+}
+
+// 查询预订响应
+message QueryResponse {
+  repeated Reservation reservations = 1;
+  string next_page_token = 2;
+  int32 total_count = 3;
+}
+
+// 监听预订变更请求
+message ListenRequest {
+  string resource_id = 1;
+  string user_id = 2;
+}
+
+// 监听预订变更响应
+message ListenResponse {
+  Reservation reservation = 1;
+  ReservationUpdateType update_type = 2;
+  google.protobuf.Timestamp timestamp = 3;
+}
+
+// 预订服务
+service ReservationService {
+  // 创建预订
+  rpc Reserve(ReserveRequest) returns (ReserveResponse);
+  
+  // 确认预订
+  rpc Confirm(ConfirmRequest) returns (ConfirmResponse);
+  
+  // 取消预订
+  rpc Cancel(CancelRequest) returns (CancelResponse);
+  
+  // 获取预订详情
+  rpc Get(GetRequest) returns (GetResponse);
+  
+  // 更新预订
+  rpc Update(UpdateRequest) returns (UpdateResponse);
+  
+  // 查询预订列表
+  rpc Query(QueryRequest) returns (QueryResponse);
+  
+  // 监听预订变更
+  rpc Listen(ListenRequest) returns (stream ListenResponse);
+}

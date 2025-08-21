@@ -4,3 +4,16 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+abi = { path = "../abi" }
+chrono = { version = "0.4", features = ["serde"] }
+tokio = { version = "1.0", features = ["full"] }
+tokio-postgres = { version = "^0.7", features = ["with-chrono-0_4", "with-uuid-1"] }
+thiserror = "2.0.16"
+uuid = { version = "1.8", features = ["serde", "v4"] }
+futures = "0.3"
+prost = "0.14.1"
+tonic = { version = "0.14", features = ["tls", "transport"] }
+dotenv = "0.15"
+
+[build-dependencies]
+tonic-build = "0.14
